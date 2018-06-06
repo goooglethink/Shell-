@@ -123,8 +123,8 @@
 | kernel.shmmni = 4096                           | 设置共享内存段最大数量数目                          |
 | vm.swappiness = 0                              | 内核按此值百分比来使用swap，0为尽可能不使用swap           |
 | vm.vfs_cache_pressure = 50                     | 内核回收用于directory和inode cache内存的倾向       |
-| vm.dirty_background_ratio = 5                  | 脏页所占的百分比达到dirty\_background\_ratio     |
-| vm.dirty_ratio = 10                            | 脏页所占的百分比达到dirty_ratio                  |
+| vm.dirty_background_ratio = 2                  | 内核flusher线程开始清理磁盘写缓存的上限                |
+| vm.dirty_ratio = 3                             | 磁盘写缓存上限（占总内存的百分比）                      |
 | vm.min_free_kbytes = 131072                    | 强制Linux VM最低保留的内存大小(以KB计算)             |
 | vm.page-cluster=3                              | 参数控制一次写入或读出swap分区的页面数量                 |
 | vm.block_dump=0                                | 启用块I/O调试                               |
@@ -175,10 +175,14 @@
 | net.ipv4.tcp_max_syn_backlog=1024              | listen 函数的backlog参数                    |
 | net.ipv4.tcp_max_tw_buckets=16384              | 服务器TIME-WAIT状态套接字的数量限制                 |
 | net.ipv4.tcp_fin_timeout=15                    | 服务器一个socket 在FIN-WAIT2 状态维护的时间         |
-| net.ipv4.tcp_keepalive_time=1800               | 从最后一个包结束后多少秒内没有活动，才发送keepalive包保持连接    |
+| net.ipv4.tcp_keepalive_time=60                 | 从最后一个包结束后多少秒内没有活动，才发送keepalive包保持连接    |
+| net.ipv4.tcp_keepalive_intvl = 10              | 发送TCP探测的频率                             |
+| net.ipv4.tcp_keepalive_probes = 6              | 丢弃TCP连接前，进行最大TCP保持连接侦测的次数              |
 | net.ipv4.udp_rmem_min=6144                     | 这个值在一定程度上影响了并发量，需要根据具体业务来调整            |
 | net.ipv4.udp_wmem_min=6144                     | 这个值在一定程度上影响了并发量，需要根据具体业务来调整            |
 | net.unix.max_dgram_qlen=50                     | 允许域套接字中数据包的最大个数                        |
+| net.core.netdev_max_backlog = 65536            | 设置个别接口接收包的速度快于内核处理速度时允许的最大的包序列         |
+| net.ipv4.tcp_mtu_probing = 1                   | 开启tcp层路径mtu发现，自动调整tcp窗口                |
 
 ```
 #!/bin/bash/
@@ -194,8 +198,8 @@ kernel.msgmax = 65535
 kernel.shmmni = 4096
 vm.swappiness = 0
 vm.vfs_cache_pressure = 50
-vm.dirty_background_ratio = 5
-vm.dirty_ratio = 10
+vm.dirty_background_ratio = 2
+vm.dirty_ratio = 3
 vm.min_free_kbytes = 131072
 vm.page-cluster=3
 vm.block_dump=0
@@ -246,10 +250,14 @@ net.ipv4.tcp_syn_retries=2
 net.ipv4.tcp_max_syn_backlog=1024
 net.ipv4.tcp_max_tw_buckets=16384
 net.ipv4.tcp_fin_timeout=15
-net.ipv4.tcp_keepalive_time=1800
+net.ipv4.tcp_keepalive_time=60
+net.ipv4.tcp_keepalive_intvl = 10
+net.ipv4.tcp_keepalive_probes = 6
 net.ipv4.udp_rmem_min=6144
 net.ipv4.udp_wmem_min=6144
 net.unix.max_dgram_qlen=50
+net.core.netdev_max_backlog = 65536
+net.ipv4.tcp_mtu_probing = 1
 #net.ipv6.route.flush = 1
 #net.ipv6.conf.all.disable_ipv6 = 1
 #net.ipv6.conf.default.disable_ipv6 = 1
